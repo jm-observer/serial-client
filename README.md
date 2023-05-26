@@ -2,7 +2,7 @@
 a common serial client
 
  ```
-./serial-client /dev/ttyCH9344USB0 getTxQueueCount -b 115200 -e rn
+./serial-client /dev/ttyCH9344USB0  getTxQueueCount str -b 115200 -e rn
 ./serial-client /dev/ttyS1 01040000000271cb -p even
  ```
  ```

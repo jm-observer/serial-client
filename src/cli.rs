@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use anyhow::Result;
 use clap::{Parser, ValueEnum};
 use serialport::SerialPortBuilder;
 
@@ -24,18 +25,29 @@ pub struct Cli {
     ending: Ending,
     #[arg(value_enum, default_value_t= LogLevel::Info, short)]
     pub log: LogLevel,
+    #[arg(value_enum, default_value_t= DataType::Hex)]
+    pub data_type: DataType,
 }
 
 impl Cli {
-    pub fn to_param(self) -> (String, Ending, SerialPortBuilder) {
-        let buidler = serialport::new(self.path, self.baud_rate)
+    pub fn to_param(&self) -> Result<(Vec<u8>, Ending, SerialPortBuilder)> {
+        let buidler = serialport::new(self.path.clone(), self.baud_rate)
             .data_bits(self.data_bits.into())
             .parity(self.parity.into())
             .flow_control(self.flow_control.into())
             .stop_bits(self.stop_bits.into())
             .timeout(Duration::from_millis(self.timeout));
-        (self.data, self.ending, buidler)
+        let data = match self.data_type {
+            DataType::Str => self.data.as_bytes().to_vec(),
+            DataType::Hex => hex::decode(self.data.clone())?,
+        };
+        Ok((data, self.ending, buidler))
     }
+}
+#[derive(Copy, Clone, ValueEnum, Debug)]
+pub enum DataType {
+    Str,
+    Hex,
 }
 
 #[derive(Copy, Clone, ValueEnum, Debug)]
