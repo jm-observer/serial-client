@@ -1,49 +1,23 @@
-use std::time::Duration;
-
-use anyhow::Result;
+use crate::read::Read;
+use crate::write::Write;
 use clap::{Parser, ValueEnum};
-use serialport::SerialPortBuilder;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
-pub struct Cli {
-    path: String,
-    data: String,
-    #[arg(default_value_t = 9600, short)]
-    baud_rate: u32,
-    #[arg(value_enum, default_value_t= DataBits::Eight, short)]
-    data_bits: DataBits,
-    #[arg(value_enum, default_value_t= Parity::None, short)]
-    parity: Parity,
-    #[arg(value_enum, default_value_t= StopBits::One, short)]
-    stop_bits: StopBits,
-    #[arg(value_enum, default_value_t= FlowControl::None, short)]
-    flow_control: FlowControl,
-    #[arg(default_value_t = 500, short)]
-    timeout: u64,
-    #[arg(value_enum, default_value_t= Ending::None, short)]
-    ending: Ending,
-    #[arg(value_enum, default_value_t= LogLevel::Info, short)]
-    pub log: LogLevel,
-    #[arg(value_enum, default_value_t= DataType::Hex)]
-    pub data_type: DataType,
+pub enum Cli {
+    Read(Read),
+    Write(Write),
 }
 
 impl Cli {
-    pub fn to_param(&self) -> Result<(Vec<u8>, Ending, SerialPortBuilder)> {
-        let buidler = serialport::new(self.path.clone(), self.baud_rate)
-            .data_bits(self.data_bits.into())
-            .parity(self.parity.into())
-            .flow_control(self.flow_control.into())
-            .stop_bits(self.stop_bits.into())
-            .timeout(Duration::from_millis(self.timeout));
-        let data = match self.data_type {
-            DataType::Str => self.data.as_bytes().to_vec(),
-            DataType::Hex => hex::decode(self.data.clone())?,
-        };
-        Ok((data, self.ending, buidler))
+    pub fn log(&self) -> LogLevel {
+        match self {
+            Cli::Read(read) => read.log,
+            Cli::Write(write) => write.log,
+        }
     }
 }
+
 #[derive(Copy, Clone, ValueEnum, Debug)]
 pub enum DataType {
     Str,
