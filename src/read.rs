@@ -41,6 +41,11 @@ async fn _collect_data_origin_by_arg(builder: SerialPortBuilder) -> Result<Vec<u
     let mut device = builder.open().context("打开串口失败")?;
     info!("打开串口成功");
 
+    #[cfg(unix)]
+    stream
+        .set_exclusive(true)
+        .map_err(|_| Error::SerialPortSetExclusive(dev_path.clone()))?;
+
     let mut datas = BytesMut::new();
     let mut buf = vec![0; 1024];
     loop {
