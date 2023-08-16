@@ -1,13 +1,13 @@
-use clap::Parser;
-use serialport::SerialPortBuilder;
-use std::time::Duration;
+use crate::cli::{DataBits, DataType, Ending, FlowControl, LogLevel, Parity, StopBits};
 use anyhow::{Context, Result};
 use bytes::BytesMut;
+use clap::Parser;
 use log::{debug, info};
-use crate::cli::{DataBits, DataType, Ending, FlowControl, LogLevel, Parity, StopBits};
+use serialport::SerialPortBuilder;
+use std::time::Duration;
 
 #[derive(Parser, Debug)]
-pub struct Write {
+pub struct Writer {
     path: String,
     data: String,
     #[arg(default_value_t = 9600, short)]
@@ -30,7 +30,7 @@ pub struct Write {
     pub data_type: DataType,
 }
 
-impl Write {
+impl Writer {
     pub async fn action(&self) -> Result<Vec<u8>> {
         let buidler = serialport::new(self.path.clone(), self.baud_rate)
             .data_bits(self.data_bits.into())
@@ -45,7 +45,6 @@ impl Write {
         _collect_data_origin_by_arg(data, self.ending, buidler).await
     }
 }
-
 
 async fn _collect_data_origin_by_arg(
     data: Vec<u8>,

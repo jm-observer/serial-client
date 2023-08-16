@@ -1,12 +1,12 @@
-use crate::read::Read;
-use crate::write::Write;
+use crate::read::Reader;
+use crate::write::Writer;
 use clap::{Parser, ValueEnum};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 pub enum Cli {
-    Read(Read),
-    Write(Write),
+    Read(Reader),
+    Write(Writer),
 }
 
 impl Cli {

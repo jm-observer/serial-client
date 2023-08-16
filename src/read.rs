@@ -1,13 +1,13 @@
 use crate::cli::{DataBits, FlowControl, LogLevel, Parity, StopBits};
-use anyhow::{Context, Result};
+use anyhow::Result;
 use bytes::BytesMut;
 use clap::Parser;
-use log::{debug, info};
-use serialport::SerialPortBuilder;
-use std::time::Duration;
+use log::debug;
+use tokio::io::AsyncReadExt;
+use tokio_serial::SerialStream;
 
 #[derive(Parser, Debug)]
-pub struct Read {
+pub struct Reader {
     path: String,
     #[arg(default_value_t = 9600, short)]
     baud_rate: u32,
@@ -25,32 +25,30 @@ pub struct Read {
     timeout: u64,
 }
 
-impl Read {
+impl Reader {
     pub async fn action(&self) -> Result<Vec<u8>> {
-        let buidler = serialport::new(self.path.clone(), self.baud_rate)
+        let builder = tokio_serial::new(self.path.clone(), self.baud_rate)
             .data_bits(self.data_bits.into())
             .parity(self.parity.into())
             .flow_control(self.flow_control.into())
-            .stop_bits(self.stop_bits.into())
-            .timeout(Duration::from_millis(self.timeout));
-        _collect_data_origin_by_arg(buidler).await
+            .stop_bits(self.stop_bits.into());
+
+        #[allow(unused_mut)]
+        let mut stream = SerialStream::open(&builder)?;
+
+        #[cfg(unix)]
+        stream.set_exclusive(true)?;
+        debug!("打开串口成功");
+        _collect_data_origin_by_arg(stream).await
     }
 }
 
-async fn _collect_data_origin_by_arg(builder: SerialPortBuilder) -> Result<Vec<u8>> {
-    let mut device = builder.open().context("打开串口失败")?;
-    info!("打开串口成功");
-
-    #[cfg(unix)]
-    stream
-        .set_exclusive(true)
-        .map_err(|_| Error::SerialPortSetExclusive(dev_path.clone()))?;
-
+async fn _collect_data_origin_by_arg(mut device: SerialStream) -> Result<Vec<u8>> {
     let mut datas = BytesMut::new();
-    let mut buf = vec![0; 1024];
+    let mut buf = BytesMut::with_capacity(1024);
     loop {
         let Ok(bytes_read) = device
-            .read(&mut buf) else {
+            .read_buf(&mut buf).await else {
             return Ok(datas.to_vec());
         };
         debug!("read {} bytes", bytes_read);
