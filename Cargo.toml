@@ -10,7 +10,7 @@ clap = { version = "4.2.7", features = ["derive"]}
 anyhow = "1.0.71"
 serialport = {version="4.2.0", default_features = false, features = ["serde"]}
 tokio-serial = "5.4.4"
-custom-utils = "0.10.14"
+custom-utils = "0.10.15"
 libc = "=0.2.137"
 tokio = { version = "1.21.1", features = ["full"]}
 log = "0.4.17"

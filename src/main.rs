@@ -15,9 +15,9 @@ mod write;
 #[tokio::main]
 pub async fn main() -> Result<()> {
     let cli: Cli = Cli::parse();
-    let _ = match cli.log() {
-        cli::LogLevel::Debug => custom_utils::logger::logger_stdout(Debug),
-        cli::LogLevel::Info => custom_utils::logger::logger_stdout(Info),
+    match cli.log() {
+        cli::LogLevel::Debug => custom_utils::logger::logger_stdout(Debug).log_to_stdout(),
+        cli::LogLevel::Info => custom_utils::logger::logger_stdout(Info).log_to_stdout(),
     };
     info!("{:?}", cli);
     match cli {
@@ -30,30 +30,19 @@ pub async fn main() -> Result<()> {
                     );
                     info!("ack [hex]: \t\t[{}]", pretty_hex::simple_hex(&res));
                 }
-                Err(err) => error!("err: {}", err),
+                Err(err) => {
+                    error!("err: {}", err);
+                    break;
+                }
             }
         },
         Cli::Write(write) => match write.action().await {
             Ok(res) => {
-                info!(
-                    "ack [str]: \t\t[{}]",
-                    String::from_utf8_lossy(res.as_slice())
-                );
-                info!("ack [hex]: \t\t[{}]", pretty_hex::simple_hex(&res));
+                info!("ack [str]: \t[{}]", String::from_utf8_lossy(res.as_slice()));
+                info!("ack [hex]: \t[{}]", pretty_hex::simple_hex(&res));
             }
             Err(err) => error!("err: {}", err),
         },
     }
-    // let (data, ending, builder) = cli.to_param()?;
-    // match _collect_data_origin_by_arg(data, ending, builder).await {
-    //     Ok(res) => {
-    //         info!(
-    //             "ack [str]: \t\t[{}]",
-    //             String::from_utf8_lossy(res.as_slice())
-    //         );
-    //         info!("ack [hex]: \t\t[{}]", pretty_hex::simple_hex(&res));
-    //     }
-    //     Err(err) => error!("err: {}", err),
-    // }
     Ok(())
 }

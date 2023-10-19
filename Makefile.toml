@@ -1,6 +1,6 @@
 [env]
-UCLIBC_IMAGE = "huangjiemin/rust-uclibc-openssl:1.69_stable_1.0.2u_excel"
-OPENWRT_IP = "192.168.254.6"
+UCLIBC_IMAGE = "repo.netfuse.cn/wangjuyunlian/rust-uclibc-openssl:1.71.1_stable_1.0.2u"
+OPENWRT_IP = "192.168.254.55"
 COMPILE_LEVEL = "release"
 
 # 192.168.199.159 192.168.254.200

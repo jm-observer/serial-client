@@ -52,7 +52,7 @@ async fn _collect_data_origin_by_arg(
     builder: SerialPortBuilder,
 ) -> Result<Vec<u8>> {
     let mut device = builder.open().context("打开串口失败")?;
-    info!("打开串口成功，准备写入：{:x?}", data);
+    info!("打开串口成功，准备写入：{:02x?}", data);
 
     device.write_all(data.as_slice())?;
     match ending {
@@ -68,8 +68,7 @@ async fn _collect_data_origin_by_arg(
     let mut datas = BytesMut::new();
     let mut buf = vec![0; 1024];
     loop {
-        let Ok(bytes_read) = device
-            .read(&mut buf) else {
+        let Ok(bytes_read) = device.read(&mut buf) else {
             return Ok(datas.to_vec());
         };
         debug!("read {} bytes", bytes_read);
