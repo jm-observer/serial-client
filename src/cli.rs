@@ -1,3 +1,4 @@
+use crate::master::Master;
 use crate::read::Reader;
 use crate::scan_addr::*;
 use crate::write::Writer;
@@ -9,6 +10,7 @@ pub enum Cli {
     Read(Reader),
     Write(Writer),
     ScanAddr(ScanAddr),
+    Master(Master),
 }
 
 impl Cli {
@@ -17,6 +19,7 @@ impl Cli {
             Cli::Read(read) => read.log,
             Cli::Write(write) => write.log,
             Cli::ScanAddr(config) => config.log,
+            Cli::Master(config) => config.log,
         }
     }
 }

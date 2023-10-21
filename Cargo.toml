@@ -11,12 +11,15 @@ anyhow = "1.0.71"
 serialport = {version="4.2.0", default_features = false, features = ["serde"]}
 tokio-serial = "5.4.4"
 custom-utils = "0.10.15"
-libc = "=0.2.137"
-tokio = { version = "1.21.1", features = ["full"]}
+libc = "=0.2.147"
+tokio = { version = "1.27.0", features = ["full"]}
 log = "0.4.17"
 bytes = "1.4.0"
 hex = "0.4.3"
 pretty-hex = "0.3.0"
 crc = "3.0.1"
+tokio-util = { version = "0.7", default-features = false, features = ["codec"] }
+tokio-modbus = { git = "https://github.com/wangjuyunlian/tokio-modbus.git", branch = "wjdev", features = ["rtu", "server", "rtu-server"], default-features = false }
+futures-util = "0.3.28"
 [patch.crates-io]
-libc = { git = "https://github.com/wangjuyunlian/libc.git", branch = "Branch_0.2.137"}
+libc = { git = "https://github.com/wangjuyunlian/libc.git", branch = "Branch_0.2.147"}
