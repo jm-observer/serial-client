@@ -2,7 +2,7 @@ use crate::cli::{DataBits, FlowControl, LogLevel, Parity, StopBits};
 use anyhow::Result;
 use bytes::BytesMut;
 use clap::Parser;
-use log::debug;
+use log::info;
 use tokio::io::AsyncReadExt;
 use tokio_serial::SerialStream;
 
@@ -35,23 +35,19 @@ impl Reader {
 
         #[allow(unused_mut)]
         let mut stream = SerialStream::open(&builder)?;
-
-        #[cfg(unix)]
-        stream.set_exclusive(true)?;
-        debug!("打开串口成功");
+        info!("打开串口成功");
         _collect_data_origin_by_arg(stream).await
     }
 }
 
 async fn _collect_data_origin_by_arg(mut device: SerialStream) -> Result<Vec<u8>> {
-    let mut datas = BytesMut::new();
-    let mut buf = BytesMut::with_capacity(1024);
     loop {
-        let Ok(bytes_read) = device
-            .read_buf(&mut buf).await else {
-            return Ok(datas.to_vec());
-        };
-        debug!("read {} bytes", bytes_read);
-        datas.extend_from_slice(&buf[0..bytes_read]);
+        let mut buf = BytesMut::with_capacity(1024);
+        let bytes_read = device.read_buf(&mut buf).await?;
+        info!(
+            "read {:3 } bytes: [{}]",
+            bytes_read,
+            pretty_hex::simple_hex(&buf.freeze())
+        );
     }
 }
