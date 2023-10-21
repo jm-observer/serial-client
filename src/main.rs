@@ -9,6 +9,7 @@ use crate::cli::Cli;
 
 mod cli;
 mod read;
+mod scan_addr;
 mod write;
 // use tokio::time::sleep;
 
@@ -43,6 +44,13 @@ pub async fn main() -> Result<()> {
             }
             Err(err) => error!("err: {}", err),
         },
+        Cli::ScanAddr(config) => {
+            if let Err(e) = config.action().await {
+                error!("scan fail: {:?}", e);
+            } else {
+                info!("scan complete");
+            }
+        }
     }
     Ok(())
 }

@@ -1,4 +1,5 @@
 use crate::read::Reader;
+use crate::scan_addr::*;
 use crate::write::Writer;
 use clap::{Parser, ValueEnum};
 
@@ -7,6 +8,7 @@ use clap::{Parser, ValueEnum};
 pub enum Cli {
     Read(Reader),
     Write(Writer),
+    ScanAddr(ScanAddr),
 }
 
 impl Cli {
@@ -14,6 +16,7 @@ impl Cli {
         match self {
             Cli::Read(read) => read.log,
             Cli::Write(write) => write.log,
+            Cli::ScanAddr(config) => config.log,
         }
     }
 }
