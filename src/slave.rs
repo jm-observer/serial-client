@@ -12,7 +12,7 @@ use tokio_modbus::{Request, Response};
 use tokio_serial::SerialStream;
 use tokio_util::codec::Framed;
 #[derive(Parser, Debug)]
-pub struct Master {
+pub struct Slave {
     path: String,
     #[arg(default_value_t = 9600, short)]
     baud_rate: u32,
@@ -32,7 +32,7 @@ pub struct Master {
     pub log: LogLevel,
 }
 
-impl Master {
+impl Slave {
     pub async fn action(&self) -> Result<()> {
         let buidler = serialport::new(self.path.clone(), self.baud_rate)
             .data_bits(self.data_bits.into())

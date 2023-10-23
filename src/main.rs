@@ -8,9 +8,9 @@ use log::{error, info};
 use crate::cli::Cli;
 
 mod cli;
-mod master;
 mod read;
 mod scan_addr;
+mod slave;
 mod write;
 // use tokio::time::sleep;
 
@@ -52,7 +52,7 @@ pub async fn main() -> Result<()> {
                 info!("scan complete");
             }
         }
-        Cli::Master(config) => {
+        Cli::Slave(config) => {
             if let Err(e) = config.action().await {
                 error!("scan fail: {:?}", e);
             } else {
