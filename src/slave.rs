@@ -28,6 +28,8 @@ pub struct Slave {
     timeout: u64,
     #[arg(default_value_t = 5000, short)]
     capacity: usize,
+    #[arg(default_value_t = 1)]
+    slave_id: u8,
     #[arg(value_enum, default_value_t= LogLevel::Info, short)]
     pub log: LogLevel,
 }
@@ -40,11 +42,15 @@ impl Slave {
             .flow_control(self.flow_control.into())
             .stop_bits(self.stop_bits.into())
             .timeout(Duration::from_millis(self.timeout));
-        _collect_data_origin_by_arg(buidler, self.capacity).await
+        _collect_data_origin_by_arg(buidler, self.capacity, self.slave_id).await
     }
 }
 
-async fn _collect_data_origin_by_arg(builder: SerialPortBuilder, capacity: usize) -> Result<()> {
+async fn _collect_data_origin_by_arg(
+    builder: SerialPortBuilder,
+    capacity: usize,
+    slave_id: u8,
+) -> Result<()> {
     let stream = SerialStream::open(&builder)?;
     let (coils, discrete, input_registers, hold_registers) = init(capacity);
     info!("打开串口成功");
@@ -53,8 +59,12 @@ async fn _collect_data_origin_by_arg(builder: SerialPortBuilder, capacity: usize
         let request = framed.next().await;
         match request {
             Some(Ok(req)) => {
-                info!("recv req: {:?}", req);
                 let hdr = req.hdr.clone();
+                if hdr.slave_id != slave_id {
+                    debug!("recv req, but slave id not equal: {:?}", req);
+                    continue;
+                }
+                info!("recv req: {:?}", req);
                 let req: SlaveRequest = req.into();
                 let rsp = match &req.request {
                     Request::ReadInputRegisters(addr, len) => {
